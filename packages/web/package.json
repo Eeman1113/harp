@@ -1,0 +1,44 @@
+{
+	"name": "harper-web",
+	"version": "0.0.1",
+	"private": true,
+	"scripts": {
+		"dev": "vite dev",
+		"build": "vite build",
+		"preview": "vite preview",
+		"check": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json",
+		"check:watch": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json --watch",
+		"start": "node build"
+	},
+	"devDependencies": {
+		"@sveltejs/adapter-node": "^5.2.12",
+		"@sveltejs/kit": "^2.17.1",
+		"@sveltejs/vite-plugin-svelte": "^5.0.3",
+		"@types/reveal.js": "^5.0.3",
+		"autoprefixer": "^10.4.21",
+		"flowbite": "^3.1.2",
+		"flowbite-svelte": "^0.44.18",
+		"postcss": "^8.4.31",
+		"svelte": "^5.15.0",
+		"svelte-check": "^4.1.5",
+		"tailwindcss": "^3.3.3",
+		"tslib": "catalog:",
+		"typescript": "catalog:",
+		"vite": "^6.1.0",
+		"vite-plugin-pwa": "^0.21.1",
+		"vite-plugin-top-level-await": "^1.5.0",
+		"vite-plugin-wasm": "^3.4.1"
+	},
+	"type": "module",
+	"dependencies": {
+		"@sveltepress/theme-default": "^5.0.7",
+		"@sveltepress/vite": "^1.1.5",
+		"chart.js": "^4.4.8",
+		"harper.js": "workspace:*",
+		"lodash-es": "^4.17.21",
+		"posthog-js": "^1.245.1",
+		"reveal.js": "^5.1.0",
+		"svelte-intersection-observer": "^1.0.0",
+		"typed.js": "^2.1.0"
+	}
+}
