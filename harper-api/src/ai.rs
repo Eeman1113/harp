@@ -64,7 +64,9 @@ struct AiSuggestionsContent {
 
 // --- Structs for the final API response ---
 
-#[derive(Serialize, Debug)]
+// Added `Deserialize` here. This is necessary for the combined endpoint to parse
+// the response from this handler.
+#[derive(Serialize, Deserialize, Debug)]
 #[serde(rename_all = "camelCase")]
 pub struct AiFormattedOutput {
     pub start: usize,
@@ -253,8 +255,7 @@ fn find_and_update_indices(
 }
 
 
-/// The main handler for the /analyze endpoint.
-pub async fn analyze_text(request: web::Json<AnalyzeRequest>) -> actix_web::Result<impl Responder> {
+pub async fn analyze_text(request: web::Json<AnalyzeRequest>) -> actix_web::Result<HttpResponse> {
     let api_key = env::var("OPENROUTER_API_KEY")
         .map_err(|_| ErrorInternalServerError("OPENROUTER_API_KEY environment variable not set."))?;
 

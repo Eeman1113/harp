@@ -4,10 +4,9 @@ use actix_web::{web, HttpResponse, Responder};
 use serde::{Deserialize, Serialize};
 use crate::{
     lint_text,
-    ai::{analyze_text, AiFormattedOutput},
+    ai::{analyze_text, AiFormattedOutput, AnalyzeRequest},
     FormattedLintOutput,
     LintRequest,
-    ai::AnalyzeRequest
 };
 
 
@@ -38,18 +37,22 @@ pub async fn combined_analysis(request: web::Json<CombinedAnalysisRequest>) -> i
     });
 
     // Run both the local linting and the AI analysis concurrently.
-    let (lint_handle, ai_handle) = tokio::join!(
+    let (lint_result, ai_result) = tokio::join!(
         lint_text(lint_req),
         analyze_text(ai_req)
     );
 
     // Extract the JSON body from the linting response.
-    let lint_results: Vec<FormattedLintOutput> = match lint_handle {
+    let lint_results: Vec<FormattedLintOutput> = match lint_result {
         Ok(res) => {
             let body = res.into_body();
+            // Await the body bytes and then deserialize
             match actix_web::body::to_bytes(body).await {
                 Ok(bytes) => serde_json::from_slice(&bytes).unwrap_or_default(),
-                Err(_) => Vec::new(),
+                Err(e) => {
+                    eprintln!("Failed to read lint response body: {:?}", e);
+                    Vec::new()
+                }
             }
         },
         Err(e) => {
@@ -59,20 +62,22 @@ pub async fn combined_analysis(request: web::Json<CombinedAnalysisRequest>) -> i
     };
 
     // Extract the JSON body from the AI analysis response.
-    let ai_results: Vec<AiFormattedOutput> = match ai_handle {
-        Ok(Ok(res)) => {
+    // This logic is now much simpler because we changed `analyze_text` to return
+    // a concrete `HttpResponse` instead of an opaque `impl Responder`.
+    let ai_results: Vec<AiFormattedOutput> = match ai_result {
+        Ok(res) => {
             let body = res.into_body();
+            // Await the body bytes and then deserialize
             match actix_web::body::to_bytes(body).await {
                 Ok(bytes) => serde_json::from_slice(&bytes).unwrap_or_default(),
-                Err(_) => Vec::new(),
+                Err(e) => {
+                    eprintln!("Failed to read AI response body: {:?}", e);
+                    Vec::new()
+                }
             }
         },
-        Ok(Err(e)) => {
-            eprintln!("AI analysis failed (inner error): {:?}", e);
-            Vec::new()
-        },
         Err(e) => {
-            eprintln!("AI analysis failed (join error): {:?}", e);
+            eprintln!("AI analysis failed: {:?}", e);
             Vec::new()
         }
     };
