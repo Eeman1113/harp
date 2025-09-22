@@ -22,13 +22,12 @@ pub struct FormattedLintOutput {
     pub end: usize,
     #[serde(rename = "paragraphKey")]
     pub paragraph_key: String,
-    pub paragraph: String,
     pub string: String,
     #[serde(rename = "type")]
     pub r#type: String,
     pub suggestions: Suggestions,
-    pub message: String,
-    pub priority: u8,
+    #[serde(rename = "description")]
+    pub description: String,
 }
 
 #[derive(Deserialize)]
@@ -138,14 +137,12 @@ pub async fn lint_text(request: web::Json<LintRequest>) -> Result<HttpResponse> 
                 length: relative_end - relative_start,
                 end: relative_end,
                 paragraph_key: containing_para.key.to_string(),
-                paragraph: containing_para.text.to_string(),
                 string: linted_string,
                 r#type: lint.lint_kind.to_string(),
                 suggestions: Suggestions {
                     recommendation: lint.suggestions.iter().map(|s| s.to_string()).collect(),
                 },
-                message: lint.message.clone(),
-                priority: lint.priority,
+                description: lint.message.clone(),
             })
         })
         .collect();
