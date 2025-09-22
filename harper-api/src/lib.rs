@@ -27,6 +27,8 @@ pub struct FormattedLintOutput {
     #[serde(rename = "type")]
     pub r#type: String,
     pub suggestions: Suggestions,
+    pub message: String,
+    pub priority: u8,
 }
 
 #[derive(Deserialize)]
@@ -142,6 +144,8 @@ pub async fn lint_text(request: web::Json<LintRequest>) -> Result<HttpResponse> 
                 suggestions: Suggestions {
                     recommendation: lint.suggestions.iter().map(|s| s.to_string()).collect(),
                 },
+                message: lint.message.clone(),
+                priority: lint.priority,
             })
         })
         .collect();
